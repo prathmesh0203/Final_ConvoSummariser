@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "contextai"
+version = "0.1.0"
+description = ""
+authors = ["prathmesh <na20b050@smail.iitm.ac.in>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
