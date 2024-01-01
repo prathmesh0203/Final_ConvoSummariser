@@ -1,85 +1,107 @@
+import aiohttp
 import streamlit as st
 from Capp import request_automatic, manual_label_generator
-from capp_new import manual_new, automatic_with_reasoning, manual_label_citation
+from capp_new import manual_new, automatic_with_reasoning, create_top_labels
 import pandas as pd
 import random
 import json
 from sample_conversations import example_conversations
+from concurrent.futures import ThreadPoolExecutor
+import asyncio
+import http.client
+import matplotlib.pyplot as plt
 
 # Set Streamlit page configuration
 st.set_page_config(page_title="ConversationSummarizer!", page_icon="🦙", layout="wide", initial_sidebar_state="auto")
+def display_hierarchy(data, level=0):
+    if isinstance(data, dict):
+        for key, value in data.items():
+            if isinstance(value, dict):  # If the value is a dictionary, create an expander
+                with st.expander(f"{key}"):
+                    display_hierarchy(value, level + 1)
+            else:  
+                st.markdown(f"* **{key}**: {value}")
+    else:  
+        st.write(data)
+def calculate_label_frequency(citation_dict):
+    label_frequency = {}
 
-# def run_manual_label_generator(user_input):
-#     return manual_label_generator(user_input)
+    # Iterate through each conversation and its labels
+    for conversation, labels in citation_dict.items():
+        for label, details in labels.items():
+            # Construct the key name for checking label availability
+            label = label.replace(" ", "_")
+            availability_key = f"is_{label}_available"
+            # Check if the label is present in the conversation
+            if details.get(availability_key, 0) == 1:
+                label_frequency[label] = label_frequency.get(label, 0) + 1
+
+    return label_frequency
 
 
+def display_label_frequency_bar_chart(label_frequency):
+    # Create a bar chart with the frequency of labels
+    labels = list(label_frequency.keys())
+    counts = list(label_frequency.values())
+    st.bar_chart(pd.DataFrame({'labels': labels, 'counts': counts}).set_index('labels'))
+
+
+async def manual_label_citation(session, conversation, labels_list):
+    labels_list = list(labels_list)  # Convert the set to a list for JSON serialization
+    url = "http://34.147.4.82/conversation"
+    payload = json.dumps({
+        "data": {
+            "convo": conversation,
+            "labels": labels_list
+        }
+    })
+    headers = {
+        'accept': 'application/json',
+        'X-API-Key': st.secrets["manual_label_citation"],
+        'Content-Type': 'application/json'
+    }
+
+    async with session.post(url, data=payload, headers=headers) as response:
+        data = await response.text()
+        output = json.loads(data)
+        return output.get("data", {}).get("app_output", "")
+
+async def generate_all_citations(conversations, final_labels):
+    async with aiohttp.ClientSession() as session:
+        tasks = [asyncio.create_task(manual_label_citation(session, conv, final_labels)) for conv in conversations.values()]
+        results = await asyncio.gather(*tasks)
+        return dict(zip(conversations.keys(), results))
 
 def label_conversation_page():
-    st.title("Label Conversation")
-
+    st.title("Generate Citations")
     if 'conversation_dict' not in st.session_state or not st.session_state['conversation_dict']:
-        st.error("No conversations available. Please generate conversations first on the conversation generator page.")
+        st.error("No conversations available.")
         return
 
-    conversation_names = list(st.session_state['conversation_dict'].keys())
-    selected_conversation_name = st.selectbox("Choose a conversation to label:", conversation_names)
+    if 'final_labels' not in st.session_state:
+        st.error("No final labels available. Please generate labels first.")
+        return
 
-    unique_key = f"conversation_{selected_conversation_name}"
+    if st.button("Generate Citations"):
+        final_labels = st.session_state['final_labels']
+        conversations = st.session_state['conversation_dict']
 
-    # Initialize conversation-specific session state
-    if unique_key not in st.session_state:
-        st.session_state[unique_key] = {'additional_labels': [], 'generated_labels': [], 'user_input': None}
+        with st.spinner("Generating citations..."):
+            citation_dict = asyncio.run(generate_all_citations(conversations, final_labels))
 
-    if selected_conversation_name:
-        st.subheader(f"Selected Conversation: {selected_conversation_name}")
-        user_input = st.session_state['conversation_dict'][selected_conversation_name]
-        st.session_state[unique_key]['user_input'] = user_input  # Store user input in the conversation-specific state
-        st.write(user_input)
+        print(citation_dict)
 
-        # Button to generate labels for the selected conversation
-        if st.button("Generate Labels for Selected Conversation"):
-            generated_labels = manual_label_generator(user_input)
-            st.session_state[unique_key]['generated_labels'] = generated_labels  # Store generated labels in the conversation-specific state
+        st.session_state['generated_citations'] = citation_dict
+        
+        for convo_name, citation in citation_dict.items():
+            st.subheader(f"Citations for {convo_name}:")
+            citation = display_hierarchy(citation)
+            # st.write(citation)
+        st.title("Label Frequency Across Conversations")
 
-        # Allow users to select labels from the generated ones
-        if 'generated_labels' in st.session_state[unique_key] and st.session_state[unique_key]['generated_labels']:
-            st.subheader("Select Labels:")
-            selected_labels = st.multiselect("Choose labels:", options=st.session_state[unique_key]['generated_labels'], key='selected_labels_key')
+        label_frequency = calculate_label_frequency(citation_dict)
 
-            new_labels = st.text_input("Add new labels (comma-separated):", key='new_labels_key')
-            if st.button("Add Labels", key='add_labels_button'):
-                if new_labels:
-                    additional_labels = [label.strip() for label in new_labels.split(',') if label.strip()]
-                    st.session_state[unique_key]['additional_labels'].extend(additional_labels)  # Update additional labels list in the conversation-specific state
-
-            # Combine selected and additional labels for the final list
-            st.subheader("Final Labels for the Conversation:")
-            final_labels = list(set(selected_labels + st.session_state[unique_key]['additional_labels']))
-            for label in final_labels:
-                st.write(label)
-
-            if st.button("Submit and Process"):
-                if final_labels:
-                    final_output = manual_label_citation(user_input, final_labels)
-                    st.write("Final Processed Output:")
-
-                    # Storing this conversation in the session state to be used in the animation page
-                    st.session_state[unique_key].update({'final_output': final_output, 'user_input': user_input})
-
-                    st.write(final_output)
-
-                    label_citation_counts = {label: len(details.get(f'citation_for_{label.replace(" ", "_")}', [])) for label, details in final_output.items()}
-                    
-                    sorted_labels = sorted(label_citation_counts.items(), key=lambda x: x[1], reverse=True)
-
-                    labels, citation_counts = zip(*sorted_labels)
-
-                    st.bar_chart(data=dict(zip(labels, citation_counts)))
-
-if __name__ == "__main__":
+        # Display the bar chart
+        display_label_frequency_bar_chart(label_frequency)
+if __name__ == '__main__':
     label_conversation_page()
-
-
-
-
-

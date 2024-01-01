@@ -2,31 +2,43 @@
     "d9cdddfdee20e79a137448fd2cfa13b8": {
         "page_script_hash": "d9cdddfdee20e79a137448fd2cfa13b8",
         "page_name": "Login",
-        "icon": "\ud83d\udc64",
+        "icon": "\ud83d\udc68\u200d\ud83d\udc64",  
         "script_path": "login.py"
     },
     "new_hash_for_generate_conversation": {
         "page_script_hash": "new_hash_for_generate_conversation",
-        "page_name": "Generate Conversation",
-        "icon": "\ud83d\udcc1",
+        "page_name": "Conversation",
+        "icon": "\ud83d\udcbb",  
         "script_path": "pages/generate_conversation.py"
     },
     "8999be1e6fcc27935f04cbc92ea215e0": {
         "page_script_hash": "8999be1e6fcc27935f04cbc92ea215e0",
-        "page_name": "Model Analysis",
-        "icon": "\ud83c\udfe0",
-        "script_path": "pages/apps2.py"
+        "page_name": "Labels",
+        "icon": "\ud83c\udfe0",  
+        "script_path": "pages/label.py"
     },
     "e8f9b8b0c9b2b9b5e2b0b9b5e1b0b9b5": {
         "page_script_hash": "e8f9b8b0c9b2b9b5e2b0b9b5e1b0b9b5",
-        "page_name": "Results Overview",
-        "icon": "\ud83d\udcbb",
-        "script_path": "pages/animation.py"
+        "page_name": "Analyze",
+        "icon": "\ud83d\udcbb",  
+        "script_path": "pages/apps2.py"
     },
     "e8f9b8b0c9b2b9b5e2b0b9b5e2b0b9b5": {
         "page_script_hash": "e8f9b8b0c9b2b9b5e2b0b9b5e2b0b9b5",
-        "page_name": "Query Generation",
-        "icon": "\ud83d\udcd1",
+        "page_name": "Citations",
+        "icon": "\ud83d\udcd1",  
+        "script_path": "pages/animation.py"
+    },
+    "e8f9b8b0c9b2b9b5e2b0b9b5e3b0b9b6": {
+        "page_script_hash": "e8f9b8b0c9b2b9b5e2b0b9b5e3b0b9b6",
+        "page_name": "Query",
+        "icon": "\ud83d\udd27",  
         "script_path": "pages/query.py"
+    },
+    "e8f9b8b0c9b2b9b5e2b0b9b5e4b0b9b5": {
+        "page_script_hash": "e8f9b8b0c9b2b9b5e2b0b9b5e4b0b9b5",
+        "page_name": "Help",
+        "icon": "\u2753",  
+        "script_path": "pages/help.py"
     }
 }

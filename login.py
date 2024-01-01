@@ -5,8 +5,8 @@ from streamlit_extras.switch_page_button import switch_page
 from streamlit.source_util import _on_pages_changed, get_pages
 
 FOURTH_PAGE_NAME = "query"
-THIRD_PAGE_NAME = "apps2"
-SECOND_PAGE_NAME = "generate_conversation"
+THIRD_PAGE_NAME = "label"
+SECOND_PAGE_NAME = "conversation"
 DEFAULT_PAGE = "login.py"
 
 
@@ -80,48 +80,26 @@ def remote_css(url):
 def sidebar_style():
     st.markdown("""
     <style>
+    /* Changing the sidebar background color */
+    .css-1lcbmhc.e1fqkh3o1 {
+        background-color: #f0f0f0; /* Light grey color; adjust as needed */
+    }
+    /* Changing the sidebar text color */
     [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {
         font-family: 'Arial', sans-serif; /* Change the font family */
         font-size: 16px;  /* Change the font size */
         line-height: 1.5; /* Change the line height */
-        color: #000;  /* Change to black color */
+        color: #333333;  /* Dark grey color for text; adjust as needed */
     }
     </style>
     """, unsafe_allow_html=True)
 
+
 # Apply the sidebar style
 sidebar_style()
 
-# local_css("style.css")
 
-# Rest of your Streamlit code...
-st.sidebar.info("""
-    **About This App:**
 
-    Welcome to our advanced Conversation Analysis Platform, where meaningful insights are derived from dialogues between users and service bots. This sophisticated tool is designed to streamline the analysis of conversations, providing valuable labels and facilitating a deeper understanding of the discussed content.
-
-    **Page 1: Generate Conversation**
-    Effortlessly craft conversations by:
-    - Manually entering discussions.
-    - Choosing from a curated selection of predefined dialogue scenarios.
-    - Creating discussions based on specific situations tailored to your needs.
-    Save your conversations for future reference, allowing you to accumulate and revisit a wealth of valuable interaction data.
-
-    **Page 2: Generate Results**
-    Utilize saved conversations to:
-    - Run our cutting-edge model on the selected dialogue.
-    - Obtain comprehensive results, revealing insightful labels discussed during the conversation.
-
-    **Page 3: Explore Results**
-    Delve into the obtained results, gaining access to:
-    - A detailed breakdown of labels.
-    - Citations for each selected label, providing context and background information.
-
-    **Page 4: Query Insights**
-    Empower your exploration by:
-    - Asking queries based on the selected saved conversations.
-    - Inputting entire conversations for a more comprehensive and nuanced understanding.
-""")
 
 st.title("Conversation Analyzer App")
 st.title("Welcome!")
@@ -149,3 +127,33 @@ def login():
 if __name__ == '__main__':
     login()
     
+
+
+# Rest of your Streamlit code...
+# st.sidebar.info("""
+#     **About This App:**
+
+#     Welcome to our advanced Conversation Analysis Platform, where meaningful insights are derived from dialogues between users and service bots. This sophisticated tool is designed to streamline the analysis of conversations, providing valuable labels and facilitating a deeper understanding of the discussed content.
+
+#     **Page 1: Generate Conversation**
+#     Effortlessly craft conversations by:
+#     - Manually entering discussions.
+#     - Choosing from a curated selection of predefined dialogue scenarios.
+#     - Creating discussions based on specific situations tailored to your needs.
+#     Save your conversations for future reference, allowing you to accumulate and revisit a wealth of valuable interaction data.
+
+#     **Page 2: Generate Results**
+#     Utilize saved conversations to:
+#     - Run our cutting-edge model on the selected dialogue.
+#     - Obtain comprehensive results, revealing insightful labels discussed during the conversation.
+
+#     **Page 3: Explore Results**
+#     Delve into the obtained results, gaining access to:
+#     - A detailed breakdown of labels.
+#     - Citations for each selected label, providing context and background information.
+
+#     **Page 4: Query Insights**
+#     Empower your exploration by:
+#     - Asking queries based on the selected saved conversations.
+#     - Inputting entire conversations for a more comprehensive and nuanced understanding.
+# """)

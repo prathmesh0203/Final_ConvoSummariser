@@ -3,7 +3,7 @@ import http.client
 import json
 from sample_conversations import example_conversations
 
-st.set_page_config(page_title="Generate Conversation", page_icon="🌄", layout="wide", initial_sidebar_state="auto")
+st.set_page_config(page_title="Conversation", page_icon="🌄", layout="wide", initial_sidebar_state="auto")
 
 # Initialize session state variables
 if 'conversation_list' not in st.session_state:
@@ -62,8 +62,16 @@ def display_conversation_generator():
 
     if conversation_source == 'Use predefined conversation':
         selected_example = st.selectbox("Choose a sample conversation", list(example_conversations.keys()))
-        st.session_state['current_conversation'] = example_conversations[selected_example]
-        st.session_state['conversation_key'] = selected_example
+
+        # Display the selected predefined conversation
+        if selected_example:
+            st.write("Selected Predefined Conversation:")
+            st.write(example_conversations[selected_example])
+            
+            # Confirm addition button
+            if st.button(f"Save '{selected_example}' to Final Set of Conversations"):
+                st.session_state['current_conversation'] = example_conversations[selected_example]
+                st.session_state['conversation_key'] = selected_example
 
     elif conversation_source == 'Enter conversation manually':
         st.session_state['current_conversation'] = st.text_area("Enter conversation manually:", key='manual_input')
@@ -82,7 +90,7 @@ def display_conversation_generator():
     if st.session_state['current_conversation']:
         conversation_name = st.text_input("Enter a unique name for this conversation (will be used as the key):", key='conversation_name')
 
-        if st.button("Add Conversation to Dictionary", key='add_button'):
+        if st.button("Save conversation to use in subsequent steps", key='add_button'):
             if conversation_name and st.session_state['current_conversation']:
                 if conversation_name not in st.session_state.get('conversation_dict', {}):
                     st.session_state.setdefault('conversation_dict', {})[conversation_name] = st.session_state['current_conversation']
@@ -101,5 +109,7 @@ def display_conversation_generator():
             st.text(f"Name: {key}")
             st.write(convo)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     display_conversation_generator()
+
+
